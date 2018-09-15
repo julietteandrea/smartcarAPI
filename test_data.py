@@ -44,8 +44,7 @@ battery_info[1235] = {"percent": 74.04}
 
 startstop_info = {}
 #results are random
-suc_err = "success" or "error"
-startstop_info[1234] = {"status": suc_err}
-startstop_info[1235] = {"status": suc_err}
+startstop_info[1234] = {"status": "success"}
+startstop_info[1235] = {"status": "error"}
 
 					
