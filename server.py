@@ -1,63 +1,85 @@
 from flask import Flask, request
 import json
-from test_data import *
+import requests
+# from test_data import *
 
 
 app = Flask(__name__)
 
-
-# @app.route("/test")
-# def testing():
-# 	print(request.json)
-# 	return json.dumps({"hello":"world"})
-
-# @app.route("/echo", methods=["POST"])
-# def testing2():
-# 	print("request.json is")
-# 	print(request.json)
-# 	json_input = request.json
-# 	return json.dumps(json_input)
-
-
-# @app.route("/fuel", methods=["GET"])
-# def fuel():
-# 	return json.dumps({"fuel":30})
-
-# @app.route("/test_id/<int:vehicle_id>", methods=["GET"])
-# def test_id(vehicle_id):
-# 	return json.dumps({"id":vehicle_id})
-
 def is_valid_vehicle(vehicle_id):
 	return vehicle_id in [1234, 1235]
 
-
+#Global var to use in each function
+URL = "http://gmapi.azurewebsites.net/"
 
 """Vehicle Info"""
 @app.route("/vehicles/<int:vehicle_id>")
 def vehicle_info(vehicle_id):
-	return json.dumps(v_info[vehicle_id])
+	"""This function returns the the 'vehicles info' from getVehicleInfo GM's api"""
+	url = "{}getVehicleInfoService".format(URL)
+	response = requests.post(url, json={"id": str(vehicle_id), "responseType": "JSON"})
+	j = response.json()
+	#created a new dict to only hold the data needed, neatly.
+	output = {}
+	output["vin"] = j["data"]["vin"]["value"]
+	output["color"] = j["data"]["color"]["value"]
+	if j["data"]["fourDoorSedan"]["value"] == "True":
+		output["doorCount"] = 4
+	else:
+		output["doorCount"] = 2
+	output["driveTrain"] = j["data"]["driveTrain"]["value"]
+	return json.dumps(output)
 
 """Fuel Range"""
 @app.route("/vehicles/<int:vehicle_id>/fuel")
 def vehicle_fuel(vehicle_id):
-	return json.dumps(fuel_info[vehicle_id])
+	"""This function returns the {"fuel":%} from the getEnergyService GM's api"""
+	url = "{}getEnergyService".format(URL)
+	response = requests.post(url, json={"id": str(vehicle_id), "responseType": "JSON"})
+	j = response.json()
+	output = {}
+	if "tankLevel" not in j["data"]:
+		output["percent"] = "n/a this is an electric car"
+	else:
+		output["percent"] = j["data"]["tankLevel"]["value"]
+	return json.dumps(output)
+
 
 """Battery Range"""
 @app.route("/vehicles/<int:vehicle_id>/battery")
 def vehicle_battery(vehicle_id):
-	return json.dumps(battery_info[vehicle_id])
+	"""This function returns the {"batterylevel":%} from the getEnergyService GM's api"""
+	url = "{}getEnergyService".format(URL)
+	response = requests.post(url, json={"id": str(vehicle_id), "responseType": "JSON"})
+	j = response.json()
+	output = {}
+	if "batterylevel" not in j["data"]:
+		output["percent"] = "n/a this isn't an electric car"
+	else:
+		output["percent"] = j["data"]["batterylevel"]["value"]
+	return json.dumps(output)
 
 """Security"""
 @app.route("/vehicles/<int:vehicle_id>/doors")
 def vehicle_security(vehicle_id):
-	return json.dumps(security_info[vehicle_id])
+	"""The function returns 'true or false' from the getSecurityStatusService if doors are locked from GM's api"""
+	url = "{}getSecurityStatusService".format(URL)
+	response = requests.post(url, json={"id": str(vehicle_id), "responseType": "JSON"})
+	j = response.json()
+	output = {}
+	output["location"] = j["data"]["doors"]["values"][0]["location"]["value"]
+	output["locked"] = j["data"]["doors"]["values"][0]["locked"]["value"]
+	return json.dumps(output)
 
 """Start/Stop Engine"""
 @app.route("/vehicles/<int:vehicle_id>/engine", methods=["POST"])
 def vehicle_startstop_engine(vehicle_id):
-	print(request.json)
-	json_input = request.json
-	return json.dumps(json_input)
+	url = "{}actionEngineService".format(URL)
+	response = requests.post(url, json={"id": str(vehicle_id), "command": "START_VEHICLE", "responseType": "JSON"})
+	j = response.json()
+	output = {}
+	output["status"] = j["actionResult"]["status"]
+	return json.dumps(output)
 
 ###################################
 
