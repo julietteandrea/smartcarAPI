@@ -36,7 +36,8 @@ def vehicle_fuel(vehicle_id):
 	j = response.json()
 	output = {}
 	if "tankLevel" not in j["data"]:
-		output["percent"] = "n/a this is an electric car"
+		#In the case that the vehicle is an electric
+		output["percent"] = "null"
 	else:
 		output["percent"] = j["data"]["tankLevel"]["value"]
 	return json.dumps(output)
@@ -50,10 +51,11 @@ def vehicle_battery(vehicle_id):
 	response = requests.post(url, json={"id": str(vehicle_id), "responseType": "JSON"})
 	j = response.json()
 	output = {}
-	if "batterylevel" not in j["data"]:
-		output["percent"] = "n/a this isn't an electric car"
+	if "batteryLevel" not in j["data"]:
+		#In the case that the vehicle isn't an electric
+		output["percent"] = "null"
 	else:
-		output["percent"] = j["data"]["batterylevel"]["value"]
+		output["percent"] = j["data"]["batteryLevel"]["value"]
 	return json.dumps(output)
 
 """Security"""
@@ -63,24 +65,38 @@ def vehicle_security(vehicle_id):
 	url = "{}getSecurityStatusService".format(URL)
 	response = requests.post(url, json={"id": str(vehicle_id), "responseType": "JSON"})
 	j = response.json()
-	output = {}
-	output["location"] = j["data"]["doors"]["values"][0]["location"]["value"]
-	output["locked"] = j["data"]["doors"]["values"][0]["locked"]["value"]
-	if output["locked"] == 'True':
-		output["locked"] = True
-	else:
-		output["locked"] = False
+	output = []
+	data = j["data"]["doors"]["values"]
+	#Some vehicles might be a 4-door or 2-door
+	for element in data:
+		print("element = {}".format(element))
+		obj= {}
+		obj["location"] = element["location"]["value"]
+		obj["locked"] = element["locked"]["value"]
+		obj["locked"] = bool(obj["locked"])
+		output.append(obj)
 	return json.dumps(output)
 
 """Start/Stop Engine"""
 @app.route("/vehicles/<int:vehicle_id>/engine", methods=["POST"])
 def vehicle_startstop_engine(vehicle_id):
+	"""This function returns 'success' or 'error' (depending the command) from the actionEngineService"""
 	url = "{}actionEngineService".format(URL)
-	start_stop = "START_VEHICLE" or "STOP_VEHICLE"
-	response = requests.post(url, json={"id": str(vehicle_id), "command": start_stop, "responseType": "JSON"})
+	# print("type of request.json = {}".format(type(request.json)))
+	# print("user has sent: {}".format(request.json))
+	command = ""
+	if request.json["action"] == "START":
+		command = "START_VEHICLE"
+	else:
+		command = "STOP_VEHICLE"
+	response = requests.post(url, json={"id": str(vehicle_id), "command": command, "responseType": "JSON"})
 	j = response.json()
 	output = {}
 	output["status"] = j["actionResult"]["status"]
+	if output["status"] == "EXECUTED":
+		output["status"] = "success"
+	else:
+		output["status"] = "error"
 	return json.dumps(output)
 
 ###################################
