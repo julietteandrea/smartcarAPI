@@ -87,4 +87,4 @@ def vehicle_startstop_engine(vehicle_id):
 
 if __name__ == "__main__":
 	#pass
-	app.run(port=5000, host='0.0.0.0', debug=False)
+	app.run(port=80, host='0.0.0.0', debug=False)
