@@ -76,7 +76,8 @@ def vehicle_security(vehicle_id):
 @app.route("/vehicles/<int:vehicle_id>/engine", methods=["POST"])
 def vehicle_startstop_engine(vehicle_id):
 	url = "{}actionEngineService".format(URL)
-	response = requests.post(url, json={"id": str(vehicle_id), "command": "START_VEHICLE", "responseType": "JSON"})
+	start_stop = "START_VEHICLE" or "STOP_VEHICLE"
+	response = requests.post(url, json={"id": str(vehicle_id), "command": start_stop, "responseType": "JSON"})
 	j = response.json()
 	output = {}
 	output["status"] = j["actionResult"]["status"]
@@ -86,4 +87,4 @@ def vehicle_startstop_engine(vehicle_id):
 
 if __name__ == "__main__":
 	#pass
-	app.run(port=5000, host='0.0.0.0', debug=True)
+	app.run(port=5000, host='0.0.0.0', debug=False)

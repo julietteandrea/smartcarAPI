@@ -2,8 +2,6 @@
 
 URL = "http://localhost:5000"
 VEHICLE_IDS = [1234, 1235]
-def is_electric(vehicle_id):
-	return vehicle_id == 1235
 
 v_info = {}
 v_info[1234] = {"vin": "123123412412",
@@ -45,7 +43,9 @@ battery_info[1235] = {"percent": 74.04}
 
 
 startstop_info = {}
-startstop_info[1234] = {"status": "success"}
-startstop_info[1235] = {"status": "error"}
+#results are random
+suc_err = "success" or "error"
+startstop_info[1234] = {"status": suc_err}
+startstop_info[1235] = {"status": suc_err}
 
 					
