@@ -20,7 +20,7 @@ v_info[1235] = {"vin": "1235AZ91XP",
 security_info = {}
 security_info[1234] = [
 						{"location": "backLeft",
-							"Locked": True},
+							"locked": True},
 						{"location": "frontRight",
 							"locked": False},
 						{"location": "frontLeft",

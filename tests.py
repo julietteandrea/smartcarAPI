@@ -4,7 +4,6 @@ import requests
 
 from test_data import *
 
-import sys
 #response.json was sending me an error. I created a function to try running response.json otherwise
 #to let me know the cause of the error via response.content
 def extract_json(response):

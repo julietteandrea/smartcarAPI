@@ -6,9 +6,6 @@ import requests
 
 app = Flask(__name__)
 
-def is_valid_vehicle(vehicle_id):
-	return vehicle_id in [1234, 1235]
-
 #Global var to use in each function
 URL = "http://gmapi.azurewebsites.net/"
 
@@ -69,6 +66,10 @@ def vehicle_security(vehicle_id):
 	output = {}
 	output["location"] = j["data"]["doors"]["values"][0]["location"]["value"]
 	output["locked"] = j["data"]["doors"]["values"][0]["locked"]["value"]
+	if output["locked"] == 'True':
+		output["locked"] = True
+	else:
+		output["locked"] = False
 	return json.dumps(output)
 
 """Start/Stop Engine"""
