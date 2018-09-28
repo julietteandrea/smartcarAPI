@@ -20,10 +20,15 @@ class Testing(unittest.TestCase):
 			response = requests.get("{}/vehicles/{}".format(URL, vehicle_id))
 			self.assertEqual(extract_json(response), expecting)
 
-
+	def test_security(self):
+		for vehicle_id in VEHICLE_IDS:
+			expecting = security_info[vehicle_id]
+			response = requests.get("{}/vehicles/{}/doors".format(URL, vehicle_id))
+			j = extract_json(response)
+			self.assertEqual(j, expecting)
+	
 	def test_fuel_range(self):
 		for vehicle_id in VEHICLE_IDS:
-			# if not is_electric(vehicle_id):
 			expecting = fuel_info[vehicle_id]
 			response = requests.get("{}/vehicles/{}/fuel".format(URL, vehicle_id))
 			j = extract_json(response)
@@ -39,12 +44,6 @@ class Testing(unittest.TestCase):
 			j["percent"] = expecting["percent"]
 			self.assertEqual(j, expecting)
 
-	def test_security(self):
-		for vehicle_id in VEHICLE_IDS:
-			expecting = security_info[vehicle_id]
-			response = requests.get("{}/vehicles/{}/doors".format(URL, vehicle_id))
-			j = extract_json(response)
-			self.assertEqual(j, expecting)
 
 	def test_startstop_engine(self):
 		for vehicle_id in VEHICLE_IDS:

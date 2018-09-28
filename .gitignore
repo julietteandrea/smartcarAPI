@@ -2,3 +2,4 @@ env/
 *.pyc
 secrets.sh
 flask.log
+server2.py
